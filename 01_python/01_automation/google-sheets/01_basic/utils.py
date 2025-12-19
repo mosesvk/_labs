@@ -1,5 +1,5 @@
 import uuid 
-from datetime import datetime
+from datetime import datetime, timezone
 
 def generate_expense_id() -> str:
     return str(uuid.uuid4())

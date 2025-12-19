@@ -13,7 +13,7 @@ def process_expenses(sheet):
         updates.append({
             'row': index, 
             'expense_id': generate_expense_id(),
-            'processd': True, 
+            'processed': True, 
             'processed_at': utc_timestamp(),
             'script_notes': SYSTEM_NOTE
         })
