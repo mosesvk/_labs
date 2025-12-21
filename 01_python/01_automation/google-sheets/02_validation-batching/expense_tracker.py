@@ -199,3 +199,114 @@ def log_error(spreadsheet, expense_data: dict, error_message: str) -> None:
     # Append the error row to the Errors sheet
     error_sheet.append_row(error_row)
 
+
+def batch_add_expenses(sheet, expenses_list: list[dict], spreadsheet=None) -> dict:
+    """
+    Processes and adds multiple expenses in a batch operation.
+    
+    Validates each expense, checks for duplicates, and batches all valid expenses
+    into a single API call for efficiency.
+    
+    Args:
+        sheet: The gspread worksheet object (Expenses sheet)
+        expenses_list: List of expense dictionaries to process
+        spreadsheet: Optional spreadsheet object (needed for error logging)
+                     If not provided, will be extracted from sheet
+        
+    Returns:
+        Dictionary with summary:
+        {
+            'success_count': int,
+            'error_count': int,
+            'duplicate_count': int,
+            'added_expenses': list[dict],
+            'errors': list[dict]  # Each error dict has 'expense' and 'message'
+        }
+    """
+    # Get spreadsheet object if not provided (needed for error logging)
+    if spreadsheet is None:
+        spreadsheet = sheet.spreadsheet
+    
+    # Results tracking
+    valid_expenses = []
+    errors = []
+    duplicate_count = 0
+    
+    # Process each expense
+    for expense_data in expenses_list:
+        # Make a copy to avoid modifying the original
+        expense = expense_data.copy()
+        
+        # Validate the expense
+        is_valid, error_message = validate_expense(expense)
+        
+        if not is_valid:
+            # Validation failed - log error
+            errors.append({
+                'expense': expense,
+                'message': error_message
+            })
+            if spreadsheet:
+                log_error(spreadsheet, expense, error_message)
+            continue
+        
+        # Check for duplicates
+        date = expense.get('date', '')
+        description = expense.get('description', '')
+        amount = expense.get('amount', '')
+        
+        is_duplicate = check_duplicate(sheet, date, description, amount)
+        
+        if is_duplicate:
+            # Duplicate found - skip it (in batch mode, we skip duplicates)
+            # You could modify this to prompt user, but for batch operations,
+            # skipping is usually better
+            duplicate_count += 1
+            errors.append({
+                'expense': expense,
+                'message': 'Duplicate expense - skipped'
+            })
+            continue
+        
+        # Add system-managed fields
+        expense['expense_id'] = generate_expense_id()
+        expense['processed'] = True
+        expense['processed_at'] = utc_timestamp()
+        expense['script_notes'] = 'Tracked by Python automation v2'
+        
+        # Add to valid expenses list
+        valid_expenses.append(expense)
+    
+    # Batch add all valid expenses at once
+    if valid_expenses:
+        # Prepare rows for batch append
+        # Column order: date, description, amount, category, payment_method,
+        #               expense_id, processed, processed_at, script_notes
+        rows_to_add = []
+        for expense in valid_expenses:
+            row = [
+                expense.get('date', ''),
+                expense.get('description', ''),
+                expense.get('amount', ''),
+                expense.get('category', ''),
+                expense.get('payment_method', ''),
+                expense.get('expense_id', ''),
+                expense.get('processed', ''),
+                expense.get('processed_at', ''),
+                expense.get('script_notes', '')
+            ]
+            rows_to_add.append(row)
+        
+        # Batch append all rows in a single API call
+        # This is much more efficient than individual append_row calls
+        sheet.append_rows(rows_to_add)
+    
+    # Return summary
+    return {
+        'success_count': len(valid_expenses),
+        'error_count': len(errors),
+        'duplicate_count': duplicate_count,
+        'added_expenses': valid_expenses,
+        'errors': errors
+    }
+
