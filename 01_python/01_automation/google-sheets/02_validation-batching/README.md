@@ -11,7 +11,6 @@ Version 2 builds on Version 1 by adding:
 This version transforms the automation from a **read-only processor** (Version 1) into an **interactive expense entry system** with robust error handling and performance optimizations.
 
 ---
-
 ## What's New in Version 2?
 
 ### Key Upgrades from Version 1:
