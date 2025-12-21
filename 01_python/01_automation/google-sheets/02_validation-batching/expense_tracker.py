@@ -2,6 +2,8 @@
 Expense Tracker Module - Version 2
 Handles expense validation, duplicate checking, and batch operations.
 """
+import gspread
+from utils import generate_expense_id, utc_timestamp
 
 def validate_expense(expense_data: dict) -> tuple[bool, str]:
     """
@@ -97,4 +99,103 @@ def check_duplicate(sheet, date: str, description: str, amount: str) -> bool:
     
     # No duplicate found after checking all rows
     return False
+
+
+def add_expense(sheet, expense_data: dict) -> tuple[bool, dict, str]:
+    """
+    Validates and adds an expense, checking for duplicates and prompting user if needed.
+    
+    Args:
+        sheet: The gspread worksheet object
+        expense_data: Dictionary containing expense fields (date, description, amount, etc.)
+        
+    Returns:
+        Tuple of (success: bool, expense_data: dict, error_message: str)
+        - If success is True: expense_data will contain the validated expense with system fields
+        - If success is False: error_message will contain the reason
+    """
+    # Step 1: Validate the expense (this will prompt for missing fields)
+    is_valid, error_message = validate_expense(expense_data)
+    
+    if not is_valid:
+        # Validation failed, return error
+        return False, expense_data, error_message
+    
+    # Step 2: Check for duplicates
+    date = expense_data.get('date', '')
+    description = expense_data.get('description', '')
+    amount = expense_data.get('amount', '')
+    
+    is_duplicate = check_duplicate(sheet, date, description, amount)
+    
+    if is_duplicate:
+        # Duplicate found - prompt user for confirmation
+        print(f"\n⚠️  Duplicate expense detected!")
+        print(f"   Date: {date}")
+        print(f"   Description: {description}")
+        print(f"   Amount: {amount}")
+        user_response = input("This expense was added before. Do you want to add it again? (yes/no): ")
+        
+        if user_response.lower() not in ['yes', 'y']:
+            # User chose not to add duplicate
+            return False, expense_data, "Duplicate expense - user chose not to add"
+    
+    # Step 3: Add system-managed fields to expense_data
+    expense_data['expense_id'] = generate_expense_id()
+    expense_data['processed'] = True
+    expense_data['processed_at'] = utc_timestamp()
+    expense_data['script_notes'] = 'Tracked by Python automation v2'
+    
+    # Success! Return the complete expense data
+    return True, expense_data, ""
+
+
+def log_error(spreadsheet, expense_data: dict, error_message: str) -> None:
+    """
+    Logs an invalid expense to the "Errors" worksheet.
+    
+    Creates the "Errors" worksheet if it doesn't exist.
+    
+    Args:
+        spreadsheet: The gspread spreadsheet object (not worksheet)
+        expense_data: Dictionary containing the invalid expense data
+        error_message: The error message explaining why it's invalid
+    """
+    ERROR_SHEET_NAME = "Errors"
+    
+    try:
+        # Try to get the Errors worksheet
+        error_sheet = spreadsheet.worksheet(ERROR_SHEET_NAME)
+    except gspread.exceptions.WorksheetNotFound:
+        # If it doesn't exist, create it with headers
+        error_sheet = spreadsheet.add_worksheet(
+            title=ERROR_SHEET_NAME,
+            rows=1000,
+            cols=10
+        )
+        # Set up headers
+        headers = [
+            'date',
+            'description',
+            'amount',
+            'category',
+            'payment_method',
+            'error_message',
+            'logged_at'
+        ]
+        error_sheet.append_row(headers)
+    
+    # Prepare the error row data
+    error_row = [
+        expense_data.get('date', ''),
+        expense_data.get('description', ''),
+        expense_data.get('amount', ''),
+        expense_data.get('category', ''),
+        expense_data.get('payment_method', ''),
+        error_message,
+        utc_timestamp()
+    ]
+    
+    # Append the error row to the Errors sheet
+    error_sheet.append_row(error_row)
 
