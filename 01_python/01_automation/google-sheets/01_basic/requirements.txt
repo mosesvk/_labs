@@ -1,3 +1,7 @@
-gspread
-google-auth
-python-dotenv
+# External packages
+gspread                    # Google Sheets API client library - enables reading/writing to Google Sheets
+google-auth                # Google authentication library - provides OAuth2 service account credentials for API access
+python-dotenv              # Environment variable management - loads variables from .env files
+
+# Note: Standard library packages (uuid, datetime) and local modules 
+# (sheets_client, expense_tracker, utils) do not need to be listed here
