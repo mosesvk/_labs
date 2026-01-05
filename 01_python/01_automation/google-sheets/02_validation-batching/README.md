@@ -15,6 +15,7 @@ This version transforms the automation from a **read-only processor** (Version 1
 
 ### Key Upgrades from Version 1:
 
+
 | Feature | Version 1 | Version 2 |
 |---------|-----------|-----------|
 | **Functionality** | Processes existing rows | **Adds new expenses interactively** |
