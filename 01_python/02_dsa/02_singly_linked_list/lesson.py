@@ -93,6 +93,41 @@ class LinkedList:
             count += 1
             cur_node = cur_node.next
         return count
+    def len_recursive(self, node):
+        if node is None:
+            return 0
+        return 1 + self.len_recursive(node.next)
+    def swap_nodes(self, key1, key2): 
+        if key1 == key2: 
+            return 
+        
+        prev1 = None
+        cur1 = self.head
+        while cur1 and cur1.data != key1:
+            prev1 = cur1
+            cur1 = cur1.next 
+        
+        prev2 = None
+        cur2 = self.head
+        while cur2 and cur2.data != key2:
+            prev2 = cur2
+            cur2 = cur2.next
+
+        if not cur1 or not cur2: 
+            return 
+
+        if prev1: 
+            prev1.next = cur2
+        else: 
+            self.head = cur2
+
+        if prev2: 
+            prev2.next = cur1
+        else: 
+            self.head = cur1
+
+        cur1.next, cur2.next = cur2.next, cur1.next 
+        
 
 
 llist = LinkedList()
@@ -114,5 +149,6 @@ llist.append("D")
 """
 
 
-print(llist.len_iterative())
+# print(llist.len_iterative())
+print(llist.len_recursive(llist.head))
 
