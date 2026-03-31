@@ -139,21 +139,16 @@ class LinkedList:
             print(name + ":" + node.data)
 
     def reverse_iterative(self):
-
-        prev = None
+        prev = None 
         cur = self.head
-        while cur:
-            nxt = cur.next
-            cur.next = prev
 
-            self.print_helper(prev, "PREV")
-            self.print_helper(cur, "CUR")
-            self.print_helper(nxt, "NXT")
-            print("\n")
-
+        while cur: 
+            nxt = cur.next 
+            cur.next = prev 
             prev = cur
             cur = nxt
-        self.head = prev
+        
+        self.head = cur 
 
     def reverse_recursive(self):
 
@@ -170,41 +165,32 @@ class LinkedList:
         self.head = _reverse_recursive(cur=self.head, prev=None)
 
     def merge_sorted(self, llist):
-
         p = self.head
         q = llist.head
         s = None
 
-        if not p:
+        if not p: 
             return q
-        if not q:
+        if not q: 
             return p
 
-        if p and q:
-            if p.data <= q.data:
+        if p and q: 
+            if p.data <= q.data: 
                 s = p
                 p = s.next
-            else:
+            else: 
                 s = q
-                q = s.next
-            new_head = s
-        while p and q:
-            if p.data <= q.data:
+                q = s.next 
+            new_head = s 
+        
+        while p and q: 
+            if p.data <= q.data: 
                 s.next = p
                 s = p
-                p = s.next
+                p = s.next 
             else:
                 s.next = q
-                s = q
-                q = s.next
-        if not p:
-            s.next = q
-        if not q:
-            s.next = p
-
-        self.head = new_head
-        return self.head
-
+                s = p
 
     def remove_duplicates(self):
         cur = self.head
