@@ -73,7 +73,7 @@ class LinkedList:
                 return
 
             prev = None
-            count = 0
+            count = 1
             while cur_node and count != pos:
                 prev = cur_node 
                 cur_node = cur_node.next
@@ -84,6 +84,7 @@ class LinkedList:
 
             prev.next = cur_node.next
             cur_node = None
+
     def len_iterative(self):
 
         count = 0
@@ -93,82 +94,131 @@ class LinkedList:
             count += 1
             cur_node = cur_node.next
         return count
+
     def len_recursive(self, node):
         if node is None:
             return 0
         return 1 + self.len_recursive(node.next)
-    def swap_nodes(self, key1, key2): 
-        if key1 == key2: 
-            return 
-        
-        prev1 = None
-        cur1 = self.head
-        while cur1 and cur1.data != key1:
-            prev1 = cur1
-            cur1 = cur1.next 
-        
-        prev2 = None
-        cur2 = self.head
-        while cur2 and cur2.data != key2:
-            prev2 = cur2
-            cur2 = cur2.next
 
-        if not cur1 or not cur2: 
+    def swap_nodes(self, key_1, key_2):
+
+        if key_1 == key_2:
             return 
 
-        if prev1: 
-            prev1.next = cur2
-        else: 
-            self.head = cur2
+        prev_1 = None 
+        curr_1 = self.head 
+        while curr_1 and curr_1.data != key_1:
+            prev_1 = curr_1 
+            curr_1 = curr_1.next
 
-        if prev2: 
-            prev2.next = cur1
-        else: 
-            self.head = cur1
+        prev_2 = None 
+        curr_2 = self.head 
+        while curr_2 and curr_2.data != key_2:
+            prev_2 = curr_2 
+            curr_2 = curr_2.next
 
-        cur1.next, cur2.next = cur2.next, cur1.next 
-        
+        if not curr_1 or not curr_2:
+            return 
 
+        if prev_1:
+            prev_1.next = curr_2
+        else:
+            self.head = curr_2
 
-llist = LinkedList()
-llist.append("A")
-llist.append("B")
-llist.append("C")
-llist.append("D")
+        if prev_2:
+            prev_2.next = curr_1
+        else:
+            self.head = curr_1
 
-# llist.delete_node_at_pos(0)
+        curr_1.next, curr_2.next = curr_2.next, curr_1.next
 
-# llist.print_list()
+    def print_helper(self, node, name):
+        if node is None:
+            print(name + ": None")
+        else:
+            print(name + ":" + node.data)
 
-"""
- len_iterative --- takes self since it’s a class method. 
- As we start from the beginning of the linked list, we set cur_node equal to the head of the linked list on line 3. '
- Then we go through each of the nodes until we hit None, which will terminate the while loop on line 4. 
- We keep a count of how many nodes by setting a count variable equal to zero at the beginning of the method on line 2. 
- count will keep track of the number of nodes we’ve encountered as long as the cur_node is not None by incrementing itself on line 5.
-"""
+    def reverse_iterative(self):
 
+        prev = None 
+        cur = self.head
+        while cur:
+            nxt = cur.next
+            cur.next = prev
+            
+            self.print_helper(prev, "PREV")
+            self.print_helper(cur, "CUR")
+            self.print_helper(nxt, "NXT")
+            print("\n")
 
-# print(llist.len_iterative())
-# print(llist.len_recursive(llist.head))
+            prev = cur 
+            cur = nxt 
+        self.head = prev
 
+    def reverse_recursive(self):
 
-print("Original List")
-llist.print_list()
+        def _reverse_recursive(cur, prev):
+            if not cur:
+                return prev
 
+            nxt = cur.next
+            cur.next = prev
+            prev = cur 
+            cur = nxt 
+            return _reverse_recursive(cur, prev)
 
-llist.swap_nodes("B", "C")
-print("Swapping nodes B and C that are not head nodes")
-llist.print_list()
+        self.head = _reverse_recursive(cur=self.head, prev=None)
 
-llist.swap_nodes("A", "B")
-print("Swapping nodes A and B where key_1 is head node")
-llist.print_list()
+    def merge_sorted(self, llist):
+    
+        p = self.head 
+        q = llist.head
+        s = None
+    
+        if not p:
+            return q
+        if not q:
+            return p
 
-llist.swap_nodes("D", "B")
-print("Swapping nodes D and B where key_2 is head node")
-llist.print_list()
+        if p and q:
+            if p.data <= q.data:
+                s = p 
+                p = s.next
+            else:
+                s = q
+                q = s.next
+            new_head = s 
+        while p and q:
+            if p.data <= q.data:
+                s.next = p 
+                s = p 
+                p = s.next
+            else:
+                s.next = q
+                s = q
+                q = s.next
+        if not p:
+            s.next = q 
+        if not q:
+            s.next = p
+            
+        self.head = new_head     
+        return self.head
 
-llist.swap_nodes("C", "C")
-print("Swapping nodes C and C where both keys are same")
-llist.print_list()
+llist_1 = LinkedList()
+llist_2 = LinkedList()
+
+llist_1.append(1)
+llist_1.append(5)
+llist_1.append(7)
+llist_1.append(9)
+llist_1.append(10)
+
+llist_2.append(2)
+llist_2.append(3)
+llist_2.append(4)
+llist_2.append(6)
+llist_2.append(8)
+
+llist_1.merge_sorted(llist_2)
+llist_1.print_list()
