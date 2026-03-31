@@ -190,24 +190,31 @@ class LinkedList:
                 p = s.next 
             else:
                 s.next = q
-                s = p
+                s = q
+                q = s.next
+        
+        if not p: 
+            s.next = q
+        if not q: 
+            s.next = p
+
+        self.head = new_head
+        return self.head
 
     def remove_duplicates(self):
         cur = self.head
         prev = None
-        dup_values = dict()
+        dupVals = dict() 
 
-        while cur:
-            if cur.data in dup_values:
-                # Remove node:
-                prev.next = cur.next
+        while cur: 
+            if cur.data in dupVals: 
+                prev.next = cur.next 
                 cur = None
-            else:
-                # Have not encountered element before.
-                dup_values[cur.data] = 1
+            else: 
+                dupVals[cur.data] = 1
                 prev = cur
-            cur = prev.next
 
+            cur = prev.next
 
 llist_1 = LinkedList()
 llist_2 = LinkedList()
