@@ -48,11 +48,11 @@ class CircularLinkedList:
                 cur = self.head 
                 while cur.next != self.head:
                     cur = cur.next 
-                    if self.head == self.head.next:
-                        self.head = None
-                    else:
-                        cur.next = self.head.next
-                        self.head = self.head.next
+                if self.head == self.head.next:
+                    self.head = None
+                else:
+                    cur.next = self.head.next
+                    self.head = self.head.next
             else:
                 cur = self.head 
                 prev = None 
@@ -62,6 +62,23 @@ class CircularLinkedList:
                     if cur.data == key:
                         prev.next = cur.next 
                         cur = cur.next
+
+    # The __len__ method has been defined with underscores before and after the len keyword 
+        # so that it overrides the len method to operate on a circular linked list.
+    def __len__(self): 
+        cur = self.head
+        count = 0 
+
+        while cur: 
+            count += 1
+            cur = cur.next
+
+            if cur == self.head: 
+                break
+            
+        return count 
+
+
 
 cllist = CircularLinkedList()
 cllist.append("C")
