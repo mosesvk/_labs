@@ -224,6 +224,7 @@ class LinkedList:
 
     # def is_palindrome(self):
 
+    # def move_tail_to_head(self):
 
 llist_1 = LinkedList()
 llist_2 = LinkedList()
