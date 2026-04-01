@@ -216,6 +216,15 @@ class LinkedList:
 
             cur = prev.next
 
+    # print_nth_from_last(self, n)
+
+    # def count_occurences_iterative(self, data): 
+
+    # def rotate(self, k): 
+
+    # def is_palindrome(self):
+
+
 llist_1 = LinkedList()
 llist_2 = LinkedList()
 

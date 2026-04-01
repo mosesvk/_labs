@@ -221,7 +221,72 @@ class LinkedList:
                 prev = cur
             cur = prev.next
 
+    def print_nth_from_last(self, n):
+        total_len = self.len_iterative()
 
+        cur = self.head
+
+        while cur: 
+            if total_len == n: 
+                print(cur.data)
+                return cur.data
+            total_len -= 1
+            cur = cur.next
+        if cur is None: 
+            return 
+
+    def count_occurences_itv(self, data): 
+        count = 0
+        cur = self.head
+
+        while cur:
+            if cur.data == data: 
+                count += 1
+            cur = cur.next
+
+        return count 
+
+    def count_occurences_rec(self, node, data):
+        if not node: 
+            return 0
+
+        if node.data == data: 
+            return 1 + self.count_occurences_rec(node.next, data)
+        else: 
+            return self.count_occurences_rec(node.next, data)
+
+    def rotate(self, k): 
+        if self.head and self.head.next: 
+            p = self.head
+            q = self.head 
+            prev = None
+            count = 0
+
+            while p and count < k: 
+                prev = p
+                p = p.next
+                q = q.next 
+                count += 1
+            p = prev
+
+            while q: 
+                prev = q
+                q = q.next
+            q = prev
+
+            q.next = self.head
+            self.head = p.next
+            p.next = None 
+
+    def is_palindrome(self):
+        # Solution 1:
+        s = ""
+        p = self.head 
+        while p:
+            s += p.data
+            p = p.next
+        return s == s[::-1]
+    
 llist_1 = LinkedList()
 llist_2 = LinkedList()
 
